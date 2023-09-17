@@ -78,7 +78,7 @@ enum bar_definition_type {
     BAR_CURE = 65, /*!< 下部ステータス表示: 回復 */
     BAR_ESP_EVIL = 66, /*!< 下部ステータス表示: 邪悪感知 */
     BAR_NIGHTSIGHT = 67, /*!< 下部ステータス表示: 暗視 */
-    BAR_ATTKHOLY = 68, /*!< 下部ステータス表示: 混乱打撃 */
+    BAR_ATTKHOLY = 68, /*!< 下部ステータス表示: 破邪 */
 };
 
 #define MAX_STAT_BARS 70
