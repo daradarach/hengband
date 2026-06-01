@@ -30,7 +30,6 @@
 #include "system/angband-system.h"
 #include "system/building-type-definition.h"
 #include "system/floor/floor-info.h"
-#include "system/floor/town-info.h"
 #include "system/floor/town-list.h"
 #include "system/inner-game-data.h"
 #include "system/item/item-entity.h"
@@ -198,12 +197,16 @@ static void dump_aux_options(FILE *fff)
 
     if (ironman_smallest_floor) {
         fmt::print(fff, _("\n (鉄人)最小フロア:   ON", "\n Ironman Smallest Floor:  ON"));
-    } else if (always_small_floor) {
-        fmt::print(fff, _("\n 常に小さめフロア:   ON", "\n Always Small Floor:      ON"));
-    } else if (allow_smallest_floor) {
-        fmt::print(fff, _("\n 最小フロア許可  :   ON", "\n Possible Small Floor:    ON"));
+        fmt::print(fff, _("\n 常に小さめフロア:   IGNORED", "\n Always Small Floor:      IGNORED"));
+        fmt::print(fff, _("\n 常に大きめフロア:   IGNORED", "\n Always Large Floor:      IGNORED"));
+        fmt::print(fff, _("\n 最小フロア許可  :   IGNORED", "\n Possible Smallest Floor: IGNORED"));
+        fmt::print(fff, _("\n 最大フロア許可  :   IGNORED", "\n Possible Largest Floor:  IGNORED"));
     } else {
-        fmt::print(fff, _("\n 小さいフロア:       OFF", "\n Small Floor:             OFF"));
+        const auto always_large_floor_is_effective = always_large_floor && !always_small_floor;
+        fmt::print(fff, _("\n 常に小さめフロア:   {}", "\n Always Small Floor:      {}"), always_small_floor ? "ON" : "OFF");
+        fmt::print(fff, _("\n 常に大きめフロア:   {}", "\n Always Large Floor:      {}"), always_small_floor ? "IGNORED" : (always_large_floor ? "ON" : "OFF"));
+        fmt::print(fff, _("\n 最小フロア許可  :   {}", "\n Possible Smallest Floor: {}"), always_large_floor_is_effective ? "IGNORED" : (allow_smallest_floor ? "ON" : "OFF"));
+        fmt::print(fff, _("\n 最大フロア許可  :   {}", "\n Possible Largest Floor:  {}"), always_small_floor ? "IGNORED" : (allow_largest_floor ? "ON" : "OFF"));
     }
 
     if (vanilla_town) {
@@ -513,7 +516,8 @@ static void dump_aux_equipment_inventory(PlayerType *player_ptr, FILE *fff)
  */
 static void dump_aux_home_museum(PlayerType *player_ptr, FILE *fff)
 {
-    const auto &home = towns_info[1].get_store(StoreSaleType::HOME);
+    const auto &outpost = TownList::get_instance().get_town(1);
+    const auto &home = outpost.get_store(StoreSaleType::HOME);
     if (home.stock_num) {
         fmt::println(fff, _("  [我が家のアイテム]", "  [Home Inventory]"));
         auto page = 1;
@@ -529,7 +533,7 @@ static void dump_aux_home_museum(PlayerType *player_ptr, FILE *fff)
         fmt::println(fff, "\n");
     }
 
-    const auto &museum = towns_info[1].get_store(StoreSaleType::MUSEUM);
+    const auto &museum = outpost.get_store(StoreSaleType::MUSEUM);
     if (museum.stock_num == 0) {
         return;
     }
