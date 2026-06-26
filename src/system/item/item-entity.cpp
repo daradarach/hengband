@@ -27,8 +27,12 @@
 #include "system/artifact/artifact-list.h"
 #include "system/artifact/artifact-record.h"
 #include "system/artifact/artifact-service.h"
+#include "system/baseitem/baseitem-config.h"
+#include "system/baseitem/baseitem-configs.h"
 #include "system/baseitem/baseitem-definition.h"
 #include "system/baseitem/baseitem-list.h"
+#include "system/dungeon/quest-definition.h"
+#include "system/dungeon/quest-list.h"
 #include "system/enums/monrace/monrace-id.h"
 #include "system/monrace/monrace-definition.h"
 #include "system/monrace/monrace-list.h"
@@ -1294,6 +1298,15 @@ bool ItemEntity::has_knowledge(ItemKindType tval) const
            this->is_special();
 }
 
+std::string ItemEntity::get_fixed_artifact_name() const
+{
+    if (this->fa_id == FixedArtifactId::NONE) {
+        return "";
+    }
+
+    return ArtifactList::get_instance().get_artifact(this->fa_id).build_full_name();
+}
+
 std::string ItemEntity::build_timeout_description(const ActivationType &act) const
 {
     const auto description = act.build_timeout_description();
@@ -1467,7 +1480,7 @@ bool ItemEntity::any_identification_flag() const
     return this->identification_flags.any();
 }
 
-const EnumClassFlagGroup<IdentificationFlag> &ItemEntity::get_special_flags() const
+const EnumClassFlagGroup<IdentificationFlag> &ItemEntity::get_identification_flags() const
 {
     return this->identification_flags;
 }
@@ -1616,18 +1629,20 @@ std::string ItemEntity::build_activation_description_dragon_breath() const
  */
 uint8_t ItemEntity::get_color() const
 {
+    const auto &basitem_configs = BaseitemConfigs::get_instance();
     const auto &baseitem = this->get_baseitem();
     const auto flavor = baseitem.flavor;
     if (flavor != 0) {
-        return BaseitemList::get_instance().get_baseitem(flavor).symbol_config.color;
+        return basitem_configs.get_color(flavor);
     }
 
-    const auto &symbol_config = baseitem.symbol_config;
+    const auto &symbol_config = basitem_configs.get_config(this->bi_id);
     auto has_attr = this->is_valid();
     has_attr &= this->is_corpse();
-    has_attr &= symbol_config.color == TERM_DARK;
+    const auto color = symbol_config.get_color();
+    has_attr &= color == TERM_DARK;
     if (!has_attr) {
-        return symbol_config.color;
+        return color;
     }
 
     return this->get_monrace().symbol_config.color;
@@ -1643,7 +1658,8 @@ char ItemEntity::get_character() const
 {
     const auto &baseitem = this->get_baseitem();
     const auto flavor = baseitem.flavor;
-    return flavor ? BaseitemList::get_instance().get_baseitem(flavor).symbol_config.character : baseitem.symbol_config.character;
+    const auto &configs = BaseitemConfigs::get_instance();
+    return flavor > 0 ? configs.get_character(flavor) : configs.get_character(this->bi_id);
 }
 
 /*!

@@ -29,6 +29,8 @@
 #include "player/player-status-table.h"
 #include "player/player-status.h"
 #include "system/baseitem/baseitem-definition.h"
+#include "system/dungeon/quest-definition.h"
+#include "system/dungeon/quest-list.h"
 #include "system/floor/floor-info.h"
 #include "system/item/item-entity.h"
 #include "system/player-type-definition.h"
@@ -44,6 +46,7 @@
 #include "world/world.h"
 #include <sstream>
 #include <string>
+#include <tl/optional.hpp>
 
 /*!
  * @brief
@@ -330,15 +333,15 @@ tl::optional<int> display_player(PlayerType *player_ptr, const int tmp_mode)
  */
 void display_player_equippy(PlayerType *player_ptr, TERM_LEN y, TERM_LEN x, BIT_FLAGS16 mode)
 {
-    const auto max_i = (mode & DP_WP) ? INVEN_BOW + 1 : INVEN_TOTAL;
-    for (int i = INVEN_MAIN_HAND; i < max_i; i++) {
-        const auto &item = *player_ptr->inventory[i];
+    const auto range = (mode & DP_WP) ? INVEN_WEAPON_SLOTS : INVEN_WIELDING_SLOTS;
+    for (const auto i_idx : range) {
+        const auto &item = *player_ptr->inventory[i_idx];
         auto symbol = item.get_symbol();
         if (!equippy_chars || !item.is_valid()) {
             symbol.color = TERM_DARK;
             symbol.character = ' ';
         }
 
-        term_putch(x + i - INVEN_MAIN_HAND, y, symbol);
+        term_putch(x + i_idx - INVEN_MAIN_HAND, y, symbol);
     }
 }

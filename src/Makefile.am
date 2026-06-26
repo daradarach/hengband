@@ -191,7 +191,6 @@ hengband_SOURCES = \
 	effect/effect-processor.cpp effect/effect-processor.h \
 	effect/effect-characteristics.h \
 	\
-	external-lib/include-json.h \
 	external-lib/include/nlohmann/json.hpp \
 	external-lib/include/simpleini/SimpleIni.h \
 	external-lib/include/std/detail/associated_types.hpp \
@@ -529,6 +528,7 @@ hengband_SOURCES = \
 	external-lib/include/fmt/std.h \
 	external-lib/include/fmt/printf.h \
 	external-lib/include/fmt/ostream.h \
+	external-lib/include/xoshiro.h \
 	external-lib/fmt/format.cc \
 	\
 	flavor/flag-inscriptions-table.cpp flavor/flag-inscriptions-table.h \
@@ -672,6 +672,7 @@ hengband_SOURCES = \
 	knowledge/monster-group-table.cpp knowledge/monster-group-table.h \
 	\
 	load/angband-version-comparer.cpp load/angband-version-comparer.h \
+	load/artifact-record-loader.cpp load/artifact-record-loader.h \
 	load/birth-loader.cpp load/birth-loader.h \
 	load/dummy-loader.cpp load/dummy-loader.h \
 	load/dungeon-loader.cpp load/dungeon-loader.h \
@@ -708,11 +709,10 @@ hengband_SOURCES = \
 	load/old/monster-flag-types-savefile50.h \
 	load/old/monster-loader-savefile50.cpp load/old/monster-loader-savefile50.h \
 	\
-	locale/character-encoding.h \
+	locale/character-encoding.cpp locale/character-encoding.h \
 	locale/english.cpp locale/english.h \
 	locale/japanese.cpp locale/japanese.h \
 	locale/localized-string.cpp locale/localized-string.h \
-	locale/utf-8.cpp locale/utf-8.h \
 	locale/language-switcher.h \
 	\
 	lore/combat-types-setter.cpp lore/combat-types-setter.h \
@@ -1136,6 +1136,12 @@ hengband_SOURCES = \
 	room/treasure-deployment.cpp room/treasure-deployment.h \
 	room/vault-builder.cpp room/vault-builder.h \
 	\
+	rumor/rumor-definition.cpp rumor/rumor-definition.h \
+	rumor/rumor-list.cpp rumor/rumor-list.h \
+	rumor/rumor-rarity.h \
+	rumor/rumor-service.cpp rumor/rumor-service.h \
+	\
+	save/artifact-record-writer.cpp save/artifact-record-writer.h \
 	save/floor-writer.cpp save/floor-writer.h \
 	save/info-writer.cpp save/info-writer.h \
 	save/item-writer.cpp save/item-writer.h \
@@ -1273,14 +1279,19 @@ hengband_SOURCES = \
 	system/gamevalue.h \
 	\
 	system/baseitem/baseitem-allocation.cpp system/baseitem/baseitem-allocation.h \
+	system/baseitem/baseitem-config.cpp system/baseitem/baseitem-config.h \
+	system/baseitem/baseitem-configs.cpp system/baseitem/baseitem-configs.h \
 	system/baseitem/baseitem-definition.cpp system/baseitem/baseitem-definition.h \
 	system/baseitem/baseitem-key.cpp system/baseitem/baseitem-key.h \
 	system/baseitem/baseitem-list.cpp system/baseitem/baseitem-list.h \
+	system/baseitem/baseitem-service.cpp system/baseitem/baseitem-service.h \
 	\
 	system/dungeon/dungeon-data-definition.cpp system/dungeon/dungeon-data-definition.h \
 	system/dungeon/dungeon-definition.cpp system/dungeon/dungeon-definition.h \
 	system/dungeon/dungeon-list.cpp system/dungeon/dungeon-list.h \
 	system/dungeon/dungeon-record.cpp system/dungeon/dungeon-record.h \
+	system/dungeon/quest-definition.cpp system/dungeon/quest-definition.h \
+	system/dungeon/quest-list.cpp system/dungeon/quest-list.h \
 	\
 	system/enums/grid-flow.h \
 	system/enums/grid-count-kind.h \
@@ -1372,7 +1383,6 @@ hengband_SOURCES = \
 	util/object-sort.cpp util/object-sort.h \
 	util/point-2d.h \
 	util/probability-table.h \
-	util/rng-xoshiro.cpp util/rng-xoshiro.h \
 	util/sha256.cpp util/sha256.h \
 	util/stack-trace.h \
 	util/string-processor.cpp util/string-processor.h \
@@ -1495,6 +1505,7 @@ stdafx.h.gch: stdafx.h stdafx.cpp Makefile
 	fi
 
 $(hengband_SOURCES:.cpp=.$(OBJEXT)): stdafx.h.gch
+$(hengband_SOURCES:.cc=.$(OBJEXT)): stdafx.h.gch
 endif
 
 install-exec-hook:

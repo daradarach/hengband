@@ -10,7 +10,6 @@
 
 #include "floor/wild.h"
 #include "core/asking-player.h"
-#include "dungeon/quest.h"
 #include "game-option/birth-options.h"
 #include "game-option/map-screen-options.h"
 #include "info-reader/fixed-map-parser.h"
@@ -29,6 +28,8 @@
 #include "system/angband-system.h"
 #include "system/dungeon/dungeon-definition.h"
 #include "system/dungeon/dungeon-list.h"
+#include "system/dungeon/quest-definition.h"
+#include "system/dungeon/quest-list.h"
 #include "system/enums/dungeon/dungeon-id.h"
 #include "system/enums/terrain/building-type.h"
 #include "system/enums/terrain/terrain-tag.h"
@@ -43,6 +44,7 @@
 #include "system/terrain/terrain-definition.h"
 #include "system/terrain/terrain-list.h"
 #include "util/bit-flags-calculator.h"
+#include "util/finalizer.h"
 #include "view/display-messages.h"
 #include "window/main-window-util.h"
 #include "world/world.h"
@@ -210,8 +212,8 @@ static void generate_wilderness_area(FloorType &floor, const WildernessGrid &wg,
     }
 
     auto &system = AngbandSystem::get_instance();
-    const Xoshiro128StarStar rng_backup = system.get_rng();
-    Xoshiro128StarStar wilderness_rng(wg.get_seed());
+    const auto restore_rng = util::make_finalizer([&system, rng_backup = system.get_rng()]() { system.set_rng(rng_backup); });
+    xso::rng32 wilderness_rng(wg.get_seed());
     system.set_rng(wilderness_rng);
     if (!corner) {
         for (auto y = 0; y < MAX_HGT; y++) {
@@ -235,7 +237,6 @@ static void generate_wilderness_area(FloorType &floor, const WildernessGrid &wg,
         grid_bottom_left.set_terrain_id(tags.at(grid_bottom_left.feat));
         grid_top_right.set_terrain_id(tags.at(grid_top_right.feat));
         grid_bottom_right.set_terrain_id(tags.at(grid_bottom_right.feat));
-        system.set_rng(rng_backup);
         return;
     }
 
@@ -256,8 +257,6 @@ static void generate_wilderness_area(FloorType &floor, const WildernessGrid &wg,
             grid.set_terrain_id(terrain_table.at(wg_terrain).at(grid.feat));
         }
     }
-
-    system.set_rng(rng_backup);
 }
 
 /*!
@@ -339,13 +338,12 @@ static void generate_area(PlayerType *player_ptr, const Pos2D &pos, bool is_bord
     }
 
     auto &system = AngbandSystem::get_instance();
-    const Xoshiro128StarStar rng_backup = system.get_rng();
-    Xoshiro128StarStar wilderness_rng(wg.get_seed());
+    const auto restore_rng = util::make_finalizer([&system, rng_backup = system.get_rng()]() { system.set_rng(rng_backup); });
+    xso::rng32 wilderness_rng(wg.get_seed());
     system.set_rng(wilderness_rng);
     const Pos2D pos_entrance(rand_range(6, floor.height - 6), rand_range(6, floor.width - 6));
     floor.get_grid(pos_entrance).set_terrain_id(TerrainTag::ENTRANCE);
     floor.get_grid(pos_entrance).special = static_cast<short>(entrance);
-    system.set_rng(rng_backup);
 }
 
 /*!
