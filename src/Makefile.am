@@ -2,9 +2,24 @@
 
 AUTOMAKE_OPTIONS = foreign subdir-objects nostdinc
 
+## ゲーム本体のソースは main.cpp を除いて全て libhengband.a にまとめる。
+## こうすることで、ユニットテスト (check_PROGRAMS) からもゲーム本体のコードを
+## 再コンパイルすることなくリンクして利用できる。
+##
+## 注意: 静的ライブラリからは、未定義シンボルの解決に必要なオブジェクトのみが
+## 取り込まれる。静的初期化子による自己登録だけを目的とする翻訳単位を追加しても
+## リンクされず、警告も出ないまま無視される (その場合は --whole-archive を検討する)。
+noinst_LIBRARIES = libhengband.a
+
+## thin archive が使える環境では crT になる (configure で判定)
+ARFLAGS = @ARFLAGS@
+
 bin_PROGRAMS = hengband
 
-hengband_SOURCES = \
+hengband_SOURCES = main.cpp
+hengband_LDADD = libhengband.a
+
+libhengband_a_SOURCES = \
 	action/action-limited.cpp action/action-limited.h \
 	action/activation-execution.cpp action/activation-execution.h \
 	action/movement-execution.cpp action/movement-execution.h \
@@ -84,7 +99,11 @@ hengband_SOURCES = \
 	blue-magic/learnt-info.cpp blue-magic/learnt-info.h \
 	blue-magic/learnt-power-getter.cpp blue-magic/learnt-power-getter.h \
 	\
+	bot/bot-control-server.cpp bot/bot-control-server.h \
 	bot/bot-json-output.cpp bot/bot-json-output.h \
+	bot/bot-report.cpp bot/bot-report.h \
+	bot/bot-screen.cpp bot/bot-screen.h \
+	bot/bot-socket-server.cpp bot/bot-socket-server.h \
 	\
 	cmd-action/cmd-attack.cpp cmd-action/cmd-attack.h \
 	cmd-action/cmd-hissatsu.cpp cmd-action/cmd-hissatsu.h \
@@ -193,6 +212,7 @@ hengband_SOURCES = \
 	effect/effect-processor.cpp effect/effect-processor.h \
 	effect/effect-characteristics.h \
 	\
+	external-lib/include/doctest/doctest.h \
 	external-lib/include/nlohmann/json.hpp \
 	external-lib/include/nlohmann/json_fwd.hpp \
 	external-lib/include/simpleini/SimpleIni.h \
@@ -591,6 +611,8 @@ hengband_SOURCES = \
 	grid/object-placer.cpp grid/object-placer.h \
 	grid/trap.cpp grid/trap.h \
 	\
+	headless-term/headless-term.cpp headless-term/headless-term.h \
+	\
 	hpmp/hp-mp-processor.cpp hpmp/hp-mp-processor.h \
 	hpmp/hp-mp-regenerator.cpp hpmp/hp-mp-regenerator.h \
 	\
@@ -601,6 +623,7 @@ hengband_SOURCES = \
 	info-reader/dungeon-info-tokens-table.cpp info-reader/dungeon-info-tokens-table.h \
 	info-reader/dungeon-reader.cpp info-reader/dungeon-reader.h \
 	info-reader/ego-reader.cpp info-reader/ego-reader.h \
+	info-reader/wilderness-reader.cpp info-reader/wilderness-reader.h \
 	info-reader/feature-info-tokens-table.cpp info-reader/feature-info-tokens-table.h \
 	info-reader/fixed-map-parser.cpp info-reader/fixed-map-parser.h \
 	info-reader/general-parser.cpp info-reader/general-parser.h \
@@ -723,7 +746,7 @@ hengband_SOURCES = \
 	lore/magic-types-setter.cpp lore/magic-types-setter.h \
 	lore/monster-lore.cpp lore/monster-lore.h \
 	\
-	main.cpp main-x11.cpp main-gcu.cpp \
+	main-x11.cpp main-gcu.cpp \
 	\
 	main/angband-initializer.cpp main/angband-initializer.h \
 	main/game-data-initializer.cpp main/game-data-initializer.h \
@@ -904,13 +927,11 @@ hengband_SOURCES = \
 	mspell/mspell-attack/mspell-curse.cpp mspell/mspell-attack/mspell-curse.h \
 	mspell/mspell-attack/mspell-particularity.cpp mspell/mspell-attack/mspell-particularity.h \
 	\
-	mutation/gain-mutation-switcher.cpp mutation/gain-mutation-switcher.h \
-	mutation/lose-mutation-switcher.cpp mutation/lose-mutation-switcher.h \
 	mutation/mutation-calculator.cpp mutation/mutation-calculator.h \
 	mutation/mutation-investor-remover.cpp mutation/mutation-investor-remover.h \
-	mutation/mutation-util.cpp mutation/mutation-util.h \
 	mutation/mutation-flag-types.h \
 	mutation/mutation-processor.cpp mutation/mutation-processor.h \
+	mutation/mutation-roll-table.cpp mutation/mutation-roll-table.h \
 	mutation/mutation-techniques.cpp mutation/mutation-techniques.h \
 	\
 	net/curl-easy-session.cpp net/curl-easy-session.h \
@@ -1247,6 +1268,7 @@ hengband_SOURCES = \
 	store/sell-order.cpp store/sell-order.h \
 	store/service-checker.cpp store/service-checker.h \
 	store/store-key-processor.cpp store/store-key-processor.h \
+	store/store-screen.cpp store/store-screen.h \
 	store/store-util.cpp store/store-util.h \
 	store/store-owners.cpp store/store-owners.h \
 	store/store-owner-comments.cpp store/store-owner-comments.h \
@@ -1355,17 +1377,9 @@ hengband_SOURCES = \
 	term/z-form.cpp term/z-form.h term/z-rand.cpp term/z-rand.h \
 	term/z-term.cpp term/z-term.h term/z-util.cpp term/z-util.h \
 	\
-	timed-effect/player-acceleration.cpp timed-effect/player-acceleration.h \
-	timed-effect/player-blindness.cpp timed-effect/player-blindness.h \
-	timed-effect/player-confusion.cpp timed-effect/player-confusion.h \
 	timed-effect/player-cut.cpp timed-effect/player-cut.h \
-	timed-effect/player-deceleration.cpp timed-effect/player-deceleration.h \
-	timed-effect/player-fear.cpp timed-effect/player-fear.h \
-	timed-effect/player-hallucination.cpp timed-effect/player-hallucination.h \
-	timed-effect/player-paralysis.cpp timed-effect/player-paralysis.h \
-	timed-effect/player-poison.cpp timed-effect/player-poison.h \
-	timed-effect/player-protection.cpp timed-effect/player-protection.h \
 	timed-effect/player-stun.cpp timed-effect/player-stun.h \
+	timed-effect/timed-effect.h \
 	timed-effect/timed-effects.cpp timed-effect/timed-effects.h \
 	\
 	tracking/baseitem-tracker.cpp tracking/baseitem-tracker.h \
@@ -1446,7 +1460,7 @@ hengband_SOURCES = \
 	world/world-movement-processor.cpp world/world-movement-processor.h \
 	world/world-turn-processor.cpp world/world-turn-processor.h
 
-EXTRA_hengband_SOURCES = \
+EXTRA_libhengband_a_SOURCES = \
 	angband.ico angband.rc ang_eng.rc ang_jp.rc maid-x11.cpp main-win.cpp \
 	main-win/commandline-win.cpp main-win/commandline-win.h \
 	main-win/graphics-win.cpp main-win/graphics-win.h \
@@ -1464,13 +1478,52 @@ EXTRA_hengband_SOURCES = \
 	main-win/main-win-utils.cpp main-win/main-win-utils.h \
 	main-win/stack-trace-win.cpp \
 	main-win/wav-reader.cpp main-win/wav-reader.h \
-	test/test-sha256.cpp \
-	test/test-probability-table.cpp \
 	wall.bmp \
 	stdafx.cpp stdafx.h
 
+## ユニットテスト
+## make check でビルドと実行が行われる。テストの追加方法は test/README.md を参照。
+check_PROGRAMS = hengband-test
+
+hengband_test_SOURCES = \
+	test/test-main.cpp \
+	test/scoped-rng.h \
+	\
+	test/autopick/test-autopick-editor-util.cpp \
+	test/cmd-io/test-cmd-autopick.cpp \
+	test/game-option/test-runtime-arguments.cpp \
+	test/info-reader/test-ego-reader.cpp \
+	test/info-reader/test-wilderness-reader.cpp \
+	test/info-reader/test-info-reader-util.cpp \
+	test/info-reader/test-json-reader-util.cpp \
+	test/info-reader/test-skill-reader.cpp \
+	test/info-reader/test-vault-reader.cpp \
+	test/io/test-interpret-pref-file.cpp \
+	test/io/test-macro-configurations-store.cpp \
+	test/load/test-angband-version-comparer.cpp \
+	test/mutation/test-mutation-roll-table.cpp \
+	test/store/test-store-screen.cpp \
+	test/store/test-store-util.cpp \
+	test/term/test-z-form.cpp \
+	test/timed-effect/test-player-cut.cpp \
+	test/timed-effect/test-player-stun.cpp \
+	test/timed-effect/test-timed-effect.cpp \
+	test/util/test-angband-files.cpp \
+	test/util/test-dice.cpp \
+	test/util/test-finalizer.cpp \
+	test/util/test-flag-group.cpp \
+	test/util/test-probability-table.cpp \
+	test/util/test-sha256.cpp \
+	test/util/test-string-processor.cpp \
+	test/view/test-map-terrain-visibility.cpp
+
+hengband_test_LDADD = libhengband.a
+
+TESTS = $(check_PROGRAMS)
+
 EXTRA_DIST = \
-	gcc-wrap
+	gcc-wrap \
+	test/README.md
 
 DEFAULT_INCLUDES = \
 	-I. -I$(srcdir) -isystem $(srcdir)/external-lib/include
@@ -1509,8 +1562,12 @@ stdafx.h.gch: stdafx.h stdafx.cpp Makefile
 		$(PCH_CHECKSUMMER) $@ > "$@".sum ; \
 	fi
 
-$(hengband_SOURCES:.cpp=.$(OBJEXT)): stdafx.h.gch
-$(hengband_SOURCES:.cc=.$(OBJEXT)): stdafx.h.gch
+## $(SOURCES) は automake が全ターゲットの _SOURCES を合成して定義する変数。
+## これを使うことで、ターゲットが増えても PCH の依存関係が自動的に追従する。
+## ヘッダやリソースファイルも含まれているため、filter でソースのみに絞る
+## (絞らないと stdafx.h: stdafx.h.gch のような循環依存が生成される)。
+$(patsubst %.cpp,%.$(OBJEXT),$(filter %.cpp,$(SOURCES))): stdafx.h.gch
+$(patsubst %.cc,%.$(OBJEXT),$(filter %.cc,$(SOURCES))): stdafx.h.gch
 endif
 
 install-exec-hook:
