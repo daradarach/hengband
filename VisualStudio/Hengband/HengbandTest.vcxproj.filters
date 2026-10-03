@@ -19,6 +19,15 @@
     <Filter Include="load">
       <UniqueIdentifier>{3c217089-cb3c-4a88-9b0a-e642a6bf402d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="locale">
+      <UniqueIdentifier>{76b459ee-5ecd-44a7-b71a-ed5acafc02f6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="main">
+      <UniqueIdentifier>{3e3bfbaf-32fc-46d7-a1fc-51c277aaa757}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="monster-race">
+      <UniqueIdentifier>{eb4b30d0-a9aa-492e-b43c-12d323e03a83}</UniqueIdentifier>
+    </Filter>
     <Filter Include="mspell">
       <UniqueIdentifier>{f4dbdb43-4dbe-4518-b1ac-3429da4d19b8}</UniqueIdentifier>
     </Filter>
@@ -48,6 +57,7 @@
     <ClCompile Include="..\..\src\stdafx.cpp" />
     <ClCompile Include="..\..\src\test\test-main.cpp" />
     <ClCompile Include="..\..\src\test\view\test-map-terrain-visibility.cpp" />
+    <ClCompile Include="..\..\src\test\view\test-screen-parity-helpers.cpp" />
     <ClCompile Include="..\..\src\test\autopick\test-autopick-editor-util.cpp">
       <Filter>autopick</Filter>
     </ClCompile>
@@ -57,13 +67,22 @@
     <ClCompile Include="..\..\src\test\game-option\test-runtime-arguments.cpp">
       <Filter>game-option</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\test\info-reader\test-activation-reader.cpp">
+      <Filter>info-reader</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\src\test\info-reader\test-ego-reader.cpp">
       <Filter>info-reader</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\test\info-reader\test-wilderness-reader.cpp">
       <Filter>info-reader</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\test\info-reader\test-town-definition-list-reader.cpp">
+      <Filter>info-reader</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\src\test\info-reader\test-town-map-reader.cpp">
+      <Filter>info-reader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\test\info-reader\test-town-preferences-reader.cpp">
       <Filter>info-reader</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\test\info-reader\test-info-reader-util.cpp">
@@ -72,7 +91,25 @@
     <ClCompile Include="..\..\src\test\info-reader\test-json-reader-util.cpp">
       <Filter>info-reader</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\test\info-reader\test-message-reader.cpp">
+      <Filter>info-reader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\test\info-reader\test-magic-reader.cpp">
+      <Filter>info-reader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\test\info-reader\test-quest-reader.cpp">
+      <Filter>info-reader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\test\info-reader\test-race-reader.cpp">
+      <Filter>info-reader</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\src\test\info-reader\test-skill-reader.cpp">
+      <Filter>info-reader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\test\info-reader\test-spell-reader.cpp">
+      <Filter>info-reader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\test\info-reader\test-terrain-reader.cpp">
       <Filter>info-reader</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\test\info-reader\test-vault-reader.cpp">
@@ -89,6 +126,15 @@
     </ClCompile>
     <ClCompile Include="..\..\src\test\load\test-angband-version-comparer.cpp">
       <Filter>load</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\test\locale\test-character-encoding.cpp">
+      <Filter>locale</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\test\main\test-init-error-messages-table.cpp">
+      <Filter>main</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\test\monster-race\test-race-ability-mask.cpp">
+      <Filter>monster-race</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\test\mspell\test-mspell-projection-table.cpp">
       <Filter>mspell</Filter>
@@ -107,6 +153,9 @@
     </ClCompile>
     <ClCompile Include="..\..\src\test\store\test-store-util.cpp">
       <Filter>store</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\test\system\baseitem\test-baseitem-definition.cpp">
+      <Filter>system</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\test\system\monrace\test-monrace-definition.cpp">
       <Filter>system</Filter>
@@ -151,5 +200,6 @@
   <ItemGroup>
     <ClInclude Include="..\..\src\stdafx.h" />
     <ClInclude Include="..\..\src\test\scoped-rng.h" />
+    <ClInclude Include="..\..\src\test\system\terrain-list-test-access.h" />
   </ItemGroup>
 </Project>

@@ -147,6 +147,13 @@ int MessageReader::set_mon_message() const
         const auto &message_list = en_list.value();
 #endif
 
+        if (message_list.is_null()) {
+            return PARSE_ERROR_TOO_FEW_ARGUMENTS;
+        }
+        if (!message_list.is_array()) {
+            return PARSE_ERROR_INVALID_TYPE;
+        }
+
         for (const auto &message_str : message_list) {
             if (message_str.is_null()) {
                 return PARSE_ERROR_TOO_FEW_ARGUMENTS;
@@ -154,15 +161,11 @@ int MessageReader::set_mon_message() const
             if (!message_str.is_string()) {
                 return PARSE_ERROR_INVALID_FLAG;
             }
-#ifdef JP
             auto str_test = utf8_to_sys(message_str.get<std::string>());
             if (!str_test) {
                 return PARSE_ERROR_INVALID_FLAG;
             }
             auto str = std::move(*str_test);
-#else
-            auto str = message_str.get<std::string>();
-#endif
             if (has_id_list) {
                 for (auto id : id_list) {
                     MonraceMessageList::get_instance().emplace(id, action->second, chance, use_name, str);

@@ -973,7 +973,13 @@
     <ClCompile Include="..\..\src\info-reader\quest-reader.cpp">
       <Filter>info-reader</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\info-reader\town-definition-list-reader.cpp">
+      <Filter>info-reader</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\src\info-reader\town-map-reader.cpp">
+      <Filter>info-reader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\info-reader\town-preferences-reader.cpp">
       <Filter>info-reader</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\info-reader\skill-reader.cpp">
@@ -3724,7 +3730,13 @@
     <ClInclude Include="..\..\src\info-reader\quest-reader.h">
       <Filter>info-reader</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\info-reader\town-definition-list-reader.h">
+      <Filter>info-reader</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\src\info-reader\town-map-reader.h">
+      <Filter>info-reader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\info-reader\town-preferences-reader.h">
       <Filter>info-reader</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\info-reader\skill-reader.h">

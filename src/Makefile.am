@@ -637,7 +637,9 @@ libhengband_a_SOURCES = \
 	info-reader/skill-reader.cpp info-reader/skill-reader.h \
 	info-reader/spell-reader.cpp info-reader/spell-reader.h \
 	info-reader/terrain-reader.cpp info-reader/terrain-reader.h \
+	info-reader/town-definition-list-reader.cpp info-reader/town-definition-list-reader.h \
 	info-reader/town-map-reader.cpp info-reader/town-map-reader.h \
+	info-reader/town-preferences-reader.cpp info-reader/town-preferences-reader.h \
 	info-reader/vault-reader.cpp info-reader/vault-reader.h \
 	\
 	inventory/floor-item-getter.cpp inventory/floor-item-getter.h \
@@ -1490,27 +1492,41 @@ check_PROGRAMS = hengband-test
 hengband_test_SOURCES = \
 	test/test-main.cpp \
 	test/scoped-rng.h \
+	test/system/terrain-list-test-access.h \
 	\
 	test/autopick/test-autopick-editor-util.cpp \
 	test/cmd-io/test-cmd-autopick.cpp \
 	test/game-option/test-runtime-arguments.cpp \
+	test/info-reader/test-activation-reader.cpp \
 	test/info-reader/test-ego-reader.cpp \
 	test/info-reader/test-wilderness-reader.cpp \
 	test/info-reader/test-info-reader-util.cpp \
 	test/info-reader/test-json-reader-util.cpp \
+	test/info-reader/test-magic-reader.cpp \
+	test/info-reader/test-message-reader.cpp \
+	test/info-reader/test-quest-reader.cpp \
+	test/info-reader/test-race-reader.cpp \
 	test/info-reader/test-skill-reader.cpp \
-	test/info-reader/test-vault-reader.cpp \
+	test/info-reader/test-spell-reader.cpp \
+	test/info-reader/test-terrain-reader.cpp \
+	test/info-reader/test-town-definition-list-reader.cpp \
 	test/info-reader/test-town-map-reader.cpp \
+	test/info-reader/test-town-preferences-reader.cpp \
+	test/info-reader/test-vault-reader.cpp \
 	test/io/test-interpret-pref-file.cpp \
 	test/io/test-macro-configurations-store.cpp \
 	test/io/test-tokenizer.cpp \
 	test/load/test-angband-version-comparer.cpp \
+	test/locale/test-character-encoding.cpp \
+	test/main/test-init-error-messages-table.cpp \
+	test/monster-race/test-race-ability-mask.cpp \
 	test/mspell/test-mspell-projection-table.cpp \
 	test/mutation/test-mutation-roll-table.cpp \
 	test/player/test-process-name.cpp \
 	test/store/test-pricing.cpp \
 	test/store/test-store-screen.cpp \
 	test/store/test-store-util.cpp \
+	test/system/baseitem/test-baseitem-definition.cpp \
 	test/system/monrace/test-monrace-definition.cpp \
 	test/term/test-z-form.cpp \
 	test/term/test-z-rand.cpp \
@@ -1524,7 +1540,8 @@ hengband_test_SOURCES = \
 	test/util/test-probability-table.cpp \
 	test/util/test-sha256.cpp \
 	test/util/test-string-processor.cpp \
-	test/view/test-map-terrain-visibility.cpp
+	test/view/test-map-terrain-visibility.cpp \
+	test/view/test-screen-parity-helpers.cpp
 
 hengband_test_LDADD = libhengband.a
 
@@ -1564,12 +1581,24 @@ endif
 CXXCOMPILE = $(strip $(CXXCOMPILE_WRAPPER) $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) $(PCH_INCLUDES))
 
 if PCH
+## clang は既定で取り込んだヘッダの mtime を PCH に埋め込むため、チェックアウトし直すたびに
+## PCH の中身が変わる。PCH のチェックサムは ccache のハッシュに含まれる (pch_external_checksum) ので、
+## これでは全オブジェクトがキャッシュミスになる。-fno-pch-timestamp で mtime を埋め込まないようにする。
+if COMPILER_IS_CLANG
+PCH_CREATE_FLAGS = -Xclang -fno-pch-timestamp
+endif
+
+## 上のとおり clang は PCH が取り込むヘッダの変更を検出しなくなり、gcc は元々検出しない。
+## そのため PCH の生成時に依存ファイル (-MD) を出力し、取り込むヘッダ (同梱ライブラリなど) が
+## 変わったときに PCH を作り直す。-MP はヘッダが削除されたときに make が失敗しないようにする。
 stdafx.h.gch: stdafx.h stdafx.cpp Makefile
-	$(CXX) -x c++-header $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) $(srcdir)/stdafx.cpp -o $@
+	$(CXX) -x c++-header $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) $(PCH_CREATE_FLAGS) -MD -MP -MF $@.d $(srcdir)/stdafx.cpp -o $@
 	if test none != "$(PCH_CHECKSUMMER)" ; then \
 		rm -f "$@".sum ; \
 		$(PCH_CHECKSUMMER) $@ > "$@".sum ; \
 	fi
+
+-include stdafx.h.gch.d
 
 ## $(SOURCES) は automake が全ターゲットの _SOURCES を合成して定義する変数。
 ## これを使うことで、ターゲットが増えても PCH の依存関係が自動的に追従する。
@@ -1586,5 +1615,5 @@ if SET_GID
 endif
 
 clean-local:
-	-rm stdafx.h.gch stdafx.h.gch.sum
+	-rm stdafx.h.gch stdafx.h.gch.sum stdafx.h.gch.d
 	-rm -rf ../build
